@@ -1,0 +1,5 @@
+vendor
+mails/*
+!mails/layouts
+!mails/themes
+.DS_Store

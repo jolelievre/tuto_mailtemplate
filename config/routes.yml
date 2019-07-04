@@ -1,0 +1,7 @@
+admin_tuto_mailtemplate:
+  path: /tutorial/mail_template
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\TutoMailtemplate\Controller\Admin\TutoMailtemplateController::indexAction'
+    _legacy_controller: TutoMailtemplate
+    _legacy_link: TutoMailtemplate

@@ -1,0 +1,29 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% trans_default_domain "Admin.Design.Feature" %}
+
+{% block content %}
+  {% block darkThemeFormBlock %}
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
+        <form class="form-horizontal">
+          <div class="card">
+            <h3 class="card-header">
+              <i class="material-icons">settings</i> {{ 'Tuto Mail Template'|trans({}, 'Modules.ExampleModuleMailtheme') }}
+            </h3>
+
+            <div class="card-block row">
+              <div class="card-text">
+                <div class="form-group row">
+                  Welcome to this tutorial for Mail Templates in PrestaShop.
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endblock %}
+{% endblock %}
