@@ -1,5 +1,6 @@
 vendor
-mails/*
 !mails/layouts
 !mails/themes
+mails/*.html
+mails/*.txt
 .DS_Store

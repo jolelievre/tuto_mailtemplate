@@ -28,6 +28,11 @@ if (!defined('_CAN_LOAD_FILES_')) {
     exit;
 }
 
+use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
+use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCatalogInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCollectionInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\ThemeInterface;
+
 class tuto_mailtemplate extends Module
 {
     public function __construct()
@@ -49,6 +54,7 @@ class tuto_mailtemplate extends Module
     public function install()
     {
         return parent::install()
+            && $this->registerHooks()
             && $this->installTab()
         ;
     }
@@ -56,6 +62,7 @@ class tuto_mailtemplate extends Module
     public function uninstall()
     {
         return parent::uninstall()
+            && $this->unregisterHooks()
             && $this->uninstallTab()
         ;
     }
@@ -63,6 +70,7 @@ class tuto_mailtemplate extends Module
     public function enable($force_all = false)
     {
         return parent::enable($force_all)
+            && $this->registerHooks()
             && $this->installTab()
         ;
     }
@@ -70,6 +78,7 @@ class tuto_mailtemplate extends Module
     public function disable($force_all = false)
     {
         return parent::disable($force_all)
+            && $this->unregisterHooks()
             && $this->uninstallTab()
         ;
     }
@@ -106,6 +115,16 @@ class tuto_mailtemplate extends Module
         return $tab->delete();
     }
 
+    private function registerHooks()
+    {
+        return $this->registerHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK);
+    }
+
+    private function unregisterHooks()
+    {
+        return $this->unregisterHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK);
+    }
+
     public function getContent()
     {
         //This controller actually does not exist, it is used in the tab
@@ -113,5 +132,33 @@ class tuto_mailtemplate extends Module
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('TutoMailtemplate')
         );
+    }
+
+    /**
+     * @param array $hookParams
+     */
+    public function hookActionListMailThemes(array $hookParams)
+    {
+        if (!isset($hookParams['mailThemes'])) {
+            return;
+        }
+
+        /** @var ThemeCollectionInterface $themes */
+        $themes = $hookParams['mailThemes'];
+
+        /** @var ThemeInterface $theme */
+        foreach ($themes as $theme) {
+            if (!in_array($theme->getName(), ['classic', 'modern'])) {
+                continue;
+            }
+
+            // Add a layout to each theme (don't forget to specify the module name)
+            $theme->getLayouts()->add(new Layout(
+                'additional_template',
+                __DIR__ . '/mails/layouts/additional_' . $theme->getName() . '_layout.html.twig',
+                '',
+                $this->name
+            ));
+        }
     }
 }
