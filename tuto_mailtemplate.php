@@ -160,6 +160,15 @@ class tuto_mailtemplate extends Module
         /** @var ThemeCollectionInterface $themes */
         $themes = $hookParams['mailThemes'];
 
+        $this->addAdditionalLayout($themes);
+        $this->addExtendedLayout($themes);
+    }
+
+    /**
+     * @param ThemeCollectionInterface $themes
+     */
+    private function addAdditionalLayout(ThemeCollectionInterface $themes)
+    {
         /** @var ThemeInterface $theme */
         foreach ($themes as $theme) {
             if (!in_array($theme->getName(), ['classic', 'modern'])) {
@@ -174,6 +183,32 @@ class tuto_mailtemplate extends Module
                 $this->name
             ));
         }
+    }
+
+    /**
+     * @param ThemeCollectionInterface $themes
+     */
+    private function addExtendedLayout(ThemeCollectionInterface $themes)
+    {
+        $theme = $themes->getByName('modern');
+        if (!$theme) {
+            return;
+        }
+
+        // First parameter is the layout name, second one is the module name (empty value matches the core layouts)
+        $orderConfLayout = $theme->getLayouts()->getLayout('order_conf', '');
+        if (null === $orderConfLayout) {
+            return;
+        }
+
+        //The layout collection extends from ArrayCollection so it has more feature than it seems..
+        //It allows to REPLACE the existing layout easily
+        $orderIndex = $theme->getLayouts()->indexOf($orderConfLayout);
+        $theme->getLayouts()->offsetSet($orderIndex, new Layout(
+            $orderConfLayout->getName(),
+            __DIR__ . '/mails/layouts/order_conf.html.twig',
+            ''
+        ));
     }
 
     /**
