@@ -29,6 +29,7 @@ if (!defined('_CAN_LOAD_FILES_')) {
 }
 
 use PrestaShop\Module\TutoMailtemplate\MailTemplate\Transformation\CustomMessageColorTransformation;
+use PrestaShop\PrestaShop\Core\MailTemplate\FolderThemeScanner;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutVariablesBuilderInterface;
@@ -160,6 +161,7 @@ class tuto_mailtemplate extends Module
         /** @var ThemeCollectionInterface $themes */
         $themes = $hookParams['mailThemes'];
 
+        $this->addTutoTheme($themes);
         $this->addAdditionalLayout($themes);
         $this->addExtendedLayout($themes);
     }
@@ -209,6 +211,18 @@ class tuto_mailtemplate extends Module
             __DIR__ . '/mails/layouts/order_conf.html.twig',
             ''
         ));
+    }
+
+    /**
+     * @param ThemeCollectionInterface $themes
+     */
+    private function addTutoTheme(ThemeCollectionInterface $themes)
+    {
+        $scanner = new FolderThemeScanner();
+        $tutoTheme = $scanner->scan(__DIR__ . '/mails/themes/tuto_modern');
+        if (null !== $tutoTheme && $tutoTheme->getLayouts()->count() > 0) {
+            $themes->add($tutoTheme);
+        }
     }
 
     /**
