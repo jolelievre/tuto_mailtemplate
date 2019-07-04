@@ -29,6 +29,8 @@ if (!defined('_CAN_LOAD_FILES_')) {
 }
 
 use PrestaShop\PrestaShop\Core\MailTemplate\Layout\Layout;
+use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutInterface;
+use PrestaShop\PrestaShop\Core\MailTemplate\Layout\LayoutVariablesBuilderInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCatalogInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\ThemeCollectionInterface;
 use PrestaShop\PrestaShop\Core\MailTemplate\ThemeInterface;
@@ -117,12 +119,18 @@ class tuto_mailtemplate extends Module
 
     private function registerHooks()
     {
-        return $this->registerHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK);
+        return
+            $this->registerHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK)
+            && $this->registerHook(LayoutVariablesBuilderInterface::BUILD_MAIL_LAYOUT_VARIABLES_HOOK)
+        ;
     }
 
     private function unregisterHooks()
     {
-        return $this->unregisterHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK);
+        return
+            $this->unregisterHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK)
+            && $this->unregisterHook(LayoutVariablesBuilderInterface::BUILD_MAIL_LAYOUT_VARIABLES_HOOK)
+        ;
     }
 
     public function getContent()
@@ -159,6 +167,29 @@ class tuto_mailtemplate extends Module
                 '',
                 $this->name
             ));
+        }
+    }
+
+    /**
+     * @param array $hookParams
+     */
+    public function hookActionBuildMailLayoutVariables(array $hookParams)
+    {
+        if (!isset($hookParams['mailLayout'])) {
+            return;
+        }
+
+        /** @var LayoutInterface $mailLayout */
+        $mailLayout = $hookParams['mailLayout'];
+        if ($mailLayout->getModuleName() != $this->name || $mailLayout->getName() != 'additional_template') {
+            return;
+        }
+
+        $locale = $hookParams['mailLayoutVariables']['locale'];
+        if (strpos($locale, 'fr') === 0) {
+            $hookParams['mailLayoutVariables']['customMessage'] = 'Mon message personnalisé';
+        } else {
+            $hookParams['mailLayoutVariables']['customMessage'] = 'My custom message';
         }
     }
 }
